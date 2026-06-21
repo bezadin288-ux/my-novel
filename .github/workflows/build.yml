@@ -10,23 +10,23 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '8'
-      - name: Download Ren'Py
-        run: wget https://www.renpy.org/dl/8.2.1/renpy-8.2.1-sdk.tar.bz2 && tar -xf renpy-8.2.1-sdk.tar.bz2
-      - name: Find project folder
+      - name: Download and setup Ren'Py
         run: |
-          echo "Все папки game:"
-          find . -name "game" -type d
-          echo "---"
-          echo "Ищем папку, в которой лежит script.rpy:"
-          find . -name "script.rpy" -type f
+          wget -q https://www.renpy.org/dl/8.2.1/renpy-8.2.1-sdk.tar.bz2
+          tar -xf renpy-8.2.1-sdk.tar.bz2
+          mv renpy-8.2.1-sdk renpy
+      - name: Unzip project
+        run: |
+          unzip -qo my_novel.zip
+          echo "Содержимое после распаковки:"
+          ls -la
       - name: Build APK
         run: |
-          PROJECT=$(find . -name "script.rpy" -type f | head -1 | xargs dirname | xargs dirname)
-          echo "Папка проекта: $PROJECT"
-          cd renpy-8.2.1-sdk
-          ./renpy.sh ../$PROJECT android
+          ./renpy/renpy.sh ./my_novel distribute --package android
+          mkdir -p output
+          find my_novel -name "*.apk" -exec cp {} output/ \;
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: my-novel-apk
-          path: "**/bin/*.apk"
+          path: output/
