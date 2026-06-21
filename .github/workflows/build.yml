@@ -1,0 +1,23 @@
+name: Build APK
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '8'
+      - name: Download Ren'Py
+        run: wget https://www.renpy.org/dl/8.2.1/renpy-8.2.1-sdk.tar.bz2 && tar -xf renpy-8.2.1-sdk.tar.bz2
+      - name: Build APK
+        run: |
+          cd renpy-8.2.1-sdk
+          ./renpy.sh ../my_novel android
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: my-novel-apk
+          path: my_novel/bin/*.apk
