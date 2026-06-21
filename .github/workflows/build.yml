@@ -12,10 +12,18 @@ jobs:
           java-version: '8'
       - name: Download Ren'Py
         run: wget https://www.renpy.org/dl/8.2.1/renpy-8.2.1-sdk.tar.bz2 && tar -xf renpy-8.2.1-sdk.tar.bz2
+      - name: Find project folder
+        run: |
+          echo "Содержимое рабочей папки:"
+          ls -la
+          echo "Ищем папку game:"
+          find . -name "game" -type d
       - name: Build APK
         run: |
+          PROJECT=$(find . -name "game" -type d | head -1 | xargs dirname)
+          echo "Папка проекта: $PROJECT"
           cd renpy-8.2.1-sdk
-          ./renpy.sh ../my_novel android
+          ./renpy.sh $PROJECT android
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
